@@ -1,6 +1,8 @@
 from canvasapi.current_user import CurrentUser
 import discord
+import aiohttp
 from discord.ext import commands
+from discord.webhook import AsyncWebhookAdapter, Webhook
 from dotenv import load_dotenv
 import os
 from canvasapi import Canvas, requester
@@ -18,19 +20,22 @@ API_KEY =os.getenv("API_TOKEN")
 canvas = Canvas(API_URL, API_KEY)
 Canvasuser = canvas.get_current_user()
 
-
-
 intents = discord.Intents.default()
 intents.members = True
 intents.presences = True
 bot = commands.Bot(command_prefix='/', description="description", intents=intents)
 
+# Webhook testing
+@bot.command()
+async def webhook(ctx):
+    async with aiohttp.ClientSession() as session:
+        webhook = Webhook.from_url('https://discord.com/api/webhooks/904194211891539988/TOhA3IXCpXJTiI6EhDjKtBU-5eJpOIbuSkXHU4mgtVGPx3K3pDn8k26SXzvrF54QYWhd', adapter=AsyncWebhookAdapter(session))
+        await webhook.send('We have accepted your application!', username='The Johns Hopkins School of Medicine', avatar_url="https://upload.wikimedia.org/wikipedia/commons/1/1c/Hlogo.png")
 
 @bot.event
 async def on_ready():# bot is working and ready
     print('We have logged in as {0.user}'.format(bot))
     print("------------------------------\n")
-
 
 @bot.command()
 async def login(ctx, *args):
