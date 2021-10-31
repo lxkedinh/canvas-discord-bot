@@ -72,12 +72,28 @@ async def metoo(ctx):
 
 
 #Call /courses and the bot will print out all of the courses you are enrolled in.
+
 @bot.command()   
 async def courses(ctx):
-    users = Canvasuser.get_courses(enrollment_state='active', enrollment_type='student', state=['avaliable'])
-    for classe in users:
-        print(classe.name)
-        await ctx.send(classe) #Bot will print out all of your courses
+    tmp = Canvasuser.get_courses(enrollment_state='active', enrollment_type='student', state=['avaliable'])
+    for idx,classes in enumerate(tmp):
+        await ctx.send('#{}  name: {}'.format(idx,classes.name)) #Bot will print out all of your courses
+
+    def check(message): # Function from https://discordpy.readthedocs.io/en/latest/ext/commands/api.html#discord.ext.commands.Bot.wait_for
+        return message.author == ctx.author
+
+    #Ask user What course they choose, Then store that course in Canvasuser.classid
+    await ctx.send('What class # would you like to choose?\n')
+    message = await bot.wait_for("message", check=check)
+    await ctx.send(f"Thanks for the reply! Your message: {message.content}")
+    await ctx.send(f"and the fucking class name is: {tmp[int(message.content)].name}")
+    await ctx.send(f"and the fucking ID is: {tmp[int(message.content)].id}")
+    Canvasuser.classid = tmp[int(message.content)].id #This classid now holds your chosen class
+    print(Canvasuser.classid)
+
+
+
+
 
 
 #############################################USELESS SHIT################################################
